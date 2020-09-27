@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors')
 const app = express();
 const formidable = require('express-formidable');
+const PORT = process.env.PORT || 80;
 
 app.use(cors());
 
@@ -85,6 +86,6 @@ app.put('/disable-user', (req, res) => {
 
 
 
-app.listen(9000,function () {
+app.listen(PORT,function () {
     console.log('Server running in port 9000');
 })
