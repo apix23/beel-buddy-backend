@@ -8,10 +8,10 @@ app.use(cors());
 const {Pool} = require('pg');
 
 const pool = new Pool({
-    user:'migracode',
-    host:'localhost',
-    database:'buddies_app',
-    password:'occlaptop1',
+    user:'krmjfrotzrajhy',
+    host:'ec2-54-146-142-58.compute-1.amazonaws.com',
+    database:'dc38re1f04hbsi',
+    password:'aca0cb54deabcae595f5fe90cf86b2922b7f35b5bd39ff5192c7383deb4689c2',
     port: 5432
 })
 
