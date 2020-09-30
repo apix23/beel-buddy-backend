@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors')
 const app = express();
 const formidable = require('express-formidable');
-const PORT = process.env.PORT || 9000;
+const PORT = process.env.PORT || 80;
 
 app.use(cors());
 
