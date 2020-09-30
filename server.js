@@ -3,6 +3,7 @@ const cors = require('cors')
 const app = express();
 const formidable = require('express-formidable');
 const PORT = process.env.PORT || 9000;
+
 app.use(cors());
 
 const {Pool} = require('pg');
@@ -19,14 +20,14 @@ app.use(formidable())
 app.use(express.static("public"));
 
 app.get('/get-table',(req,res)=>{
-    const query = `select b.*, p."name" as matchName from buddies b 
+    const query = `select b.*, p."name" as matchName, m.enabled as matchEnabled from buddies b 
     left join matches m on m.buddyid = b.id 
     left join patients p on m.patient_id = p.id
-    where b.enabled = 1 
-    
+    where b.enabled = 1  
+        
     union 
     
-    select p.*, b."name" as matchName from patients p 
+    select  p.*, b."name" as matchName, m.enabled as matchEnabled from patients p 
     left join matches m on m.patient_id = p.id 
     left join buddies b on m.buddyid = b.id 
     where p.enabled = 1 
@@ -118,6 +119,74 @@ app.put('/disable-user', (req, res) => {
     .catch((e) => console.log(e));
 
     res.send("Done");
+})
+
+app.post('/create-match', (req, res) => {
+    console.log("Creating a new match");
+
+    let buddyId = 0, patientId = 0;
+
+    if(req.fields.isBuddy_u1) {
+        buddyId = req.fields.id_u1;
+        patientId = req.fields.id_u2;
+    } else {
+        buddyId = req.fields.id_u2;
+        patientId = req.fields.id_u1;
+    }
+
+    const creationDate = new Date();
+
+    const query = "INSERT INTO matches (patient_id, buddyid, admin_id, start_date_of_match, enabled) VALUES ($1, $2, 1, $3, 1)";
+
+    pool
+    .query(query,[patientId, buddyId, creationDate])
+    .then(()=> res.json(result.rows))
+    .catch((e) => console.log(e))
+    
+})
+
+app.put('/update-match', (req, res) => {
+    console.log("Updating a match", req.fields);
+
+    let buddy_id = 0, patient_id = 0;
+
+    if(req.fields.current_isBuddy) {
+        console.log("Inside the if");
+        //Giving values if the current user is a buddy
+        buddy_id = req.fields.current_id;
+        patient_id = req.fields.match_id;
+    } else {
+        console.log("Inside the else");
+        //Giving values if the current user is a patient
+        buddy_id = req.fields.match_id;
+        patient_id = req.fields.current_id;
+    }
+
+    console.log("After the if, patient_id is", patient_id, "and buddy_id is ", buddy_id);
+
+    const currentId = req.fields.current_id;
+    const currentIsBuddy = req.fields.current_isBuddy;
+
+    const creationDate = new Date();
+
+    //Query to disable the existent match
+    let query = "";
+    currentIsBuddy == 1? query = "UPDATE matches set enabled=0 where buddyid=$1" : query = "UPDATE matches set enabled=0 where patient_id=$1";
+    console.log("the query 1 would be: ", query, currentId);
+    
+    //Query to create the new match for the user
+    const query2 = "INSERT INTO matches (patient_id, buddyid, admin_id, start_date_of_match, enabled) VALUES ($1, $2, 1, $3, 1)";
+
+    pool
+    .query(query, [currentId])
+    .then(result => {console.log("disabling the match")})
+    .catch((e) => console.log(e))
+
+    pool
+    .query(query2,[patient_id, buddy_id, creationDate])
+    .then(result => {console.log("inserting the new match")})
+    .catch((e) => console.log(e))
+    
 })
 
 
