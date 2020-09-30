@@ -42,6 +42,16 @@ app.get('/get-table',(req,res)=>{
 })
 
 
+app.get('/test-page', function (req, res) {
+    const query = "SELECT * FROM  buddies"
+
+    pool
+    .query(query)
+    .then((result) => {res.json(result.rows)})
+    .catch((e) => console.error(e));
+    
+})
+
 app.post('/get-login-info',function (req,res) {
     const email = req.fields.email;
     const password = req.fields.password;
