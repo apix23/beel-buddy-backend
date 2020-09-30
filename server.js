@@ -2,17 +2,16 @@ const express = require('express');
 const cors = require('cors')
 const app = express();
 const formidable = require('express-formidable');
-const PORT = process.env.PORT || 80;
-
+const PORT = process.env.PORT || 9000;
 app.use(cors());
 
 const {Pool} = require('pg');
 
 const pool = new Pool({
-    user:'krmjfrotzrajhy',
-    host:'ec2-54-146-142-58.compute-1.amazonaws.com',
-    database:'dc38re1f04hbsi',
-    password:'aca0cb54deabcae595f5fe90cf86b2922b7f35b5bd39ff5192c7383deb4689c2',
+    user:'migracode',
+    host:'localhost',
+    database:'buddies_app',
+    password:'occlaptop1',
     port: 5432
 })
 
@@ -37,9 +36,47 @@ app.get('/get-table',(req,res)=>{
     console.log("entro al get");
     pool
     .query(query)
-    .then((result) => {res.json(result.rows); console.log(result.rows)})
+    .then((result) => {res.json(result.rows)})
     .catch((e) => console.error(e));
 })
+
+
+app.post('/get-login-info',function (req,res) {
+    const email = req.fields.email;
+    const password = req.fields.password;
+
+    const query = "SELECT * FROM administrators a where a.email = $1"
+
+    res.set('Content-Type', 'text/html');
+
+    pool
+    .query(query,[email])
+    .then((result) => {
+
+        console.log(result.rows);
+        if (email === result.rows[0].email) {
+            console.log("entre en el primer if, email son iguales");
+            if (password === result.rows[0].password) {
+                console.log("la contraseña es la adecuada")
+                res.send({email: "right", password: "right"});
+            }
+            else{
+                console.log("la contraseña es invalida")
+                res.send({email: "right", password: "wrong"})
+            }
+        }
+        else{
+            console.log("El email tiene un problema");
+            res.send({email: "wrong", password: "wrong"})
+        }
+    })
+    .catch((e) => {
+        res.send({email:"wrong",  source: "catch"})
+    })
+
+})
+
+
 
 app.post('/create-user',function (req,res) {
     const name = req.fields.name;
@@ -61,7 +98,7 @@ app.post('/create-user',function (req,res) {
     
     pool
     .query(query,[name,dateofbirth,email,hometown,hobbiesandinterests,im_a_buddy,joined_at,enabled])
-    .then(()=> res.json(result.rows))
+    .then(()=> res.json("User added succesfully"))
     .catch((e) => console.log(e))
 })
 
@@ -87,5 +124,5 @@ app.put('/disable-user', (req, res) => {
 
 
 app.listen(PORT,function () {
-    console.log('Server running in port 9000');
+    console.log(`Server running in port ${PORT}`);
 })
