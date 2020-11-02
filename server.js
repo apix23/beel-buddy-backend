@@ -23,14 +23,14 @@ app.get('/get-table',(req,res)=>{
     const query = `select b.*, p."name" as matchName, m.enabled as matchEnabled from buddies b 
     left join matches m on m.buddyid = b.id 
     left join patients p on m.patient_id = p.id
-    where b.enabled = 1  
+    where b.enabled = 1 and m.enabled = 1 
         
     union 
     
     select  p.*, b."name" as matchName, m.enabled as matchEnabled from patients p 
     left join matches m on m.patient_id = p.id 
     left join buddies b on m.buddyid = b.id 
-    where p.enabled = 1 
+    where p.enabled = 1 and m.enabled = 1
     
     order by joined_at desc;`;
     
