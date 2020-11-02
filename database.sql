@@ -109,3 +109,9 @@ update patients set enabled = 1;
 
 alter table buddies alter column enabled set not null;
 alter table patients alter column enabled set not null;
+
+alter table matches
+add column enabled int;
+update matches set enabled = 1;
+
+INSERT INTO administrators ("name" ,email,  password ) VALUES ('Lute', 'lute@gmail.com', '1234567');

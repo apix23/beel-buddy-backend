@@ -150,7 +150,7 @@ app.post('/create-match', (req, res) => {
 
     pool
     .query(query,[patientId, buddyId, creationDate])
-    .then(()=> res.json(result.rows))
+    .then(()=> res.json("Match created succesfully"))
     .catch((e) => console.log(e))
     
 })
